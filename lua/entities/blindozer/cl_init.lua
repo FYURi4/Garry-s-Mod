@@ -4,11 +4,12 @@ include('data_base.lua')
 if CLIENT then
 --[SHRIFTS]--
     surface.CreateFont( "TheDefaultSettings", {font = "ChatFont", extended = false,size = 22,weight = 500,blursize = 0,scanlines = 0,antialias = true,underline = false,italic = false,strikeout = false,symbol = false,rotary = false,shadow = false,additive = false,outline = false, } )
-    surface.CreateFont( "TheDefaultSettings2", {font = "ChatFont", extended = false,size = 36,weight = 500,blursize = 0,scanlines = 0,antialias = true,underline = false,italic = false,strikeout = false,symbol = false,rotary = false,shadow = false,additive = false,outline = false, } )
+    surface.CreateFont( "TheDefaultSettings2", {font = "ChatFont", extended = false,size = 28,weight = 500,blursize = 0,scanlines = 0,antialias = true,underline = false,italic = false,strikeout = false,symbol = false,rotary = false,shadow = false,additive = false,outline = false, } )
     surface.CreateFont('info', {font = 'Open Sans Bold',size = 20,weight = 600} )   
 --[CODE START]--
     local keysl = nil
-    
+    local owner = nil
+    local usersee = nil
     --[FUNCTION ENT_DRAW - Drawing graphic elements on a blindozer]
     function ENT:Draw()
         self:DrawModel()
@@ -117,14 +118,14 @@ if CLIENT then
             chat.PlaySound()
             frame4()
             frame2:Close()
-        end
-
-        local BUTTON_STATISTIC = createButton('DImageButton',frame2,866,780,90,21,"materials/metrostroi_3demc/vending_machine/BLINDOZER_GUI/BUTTON_STATISTICS.png")
-        BUTTON_STATISTIC.DoClick = function()
-            chat.PlaySound()
-        
-            frame3()
-            frame2:Close()
+        end 
+        if usersee == owner then
+            local BUTTON_STATISTIC = createButton('DImageButton',frame2,866,780,90,21,"materials/metrostroi_3demc/vending_machine/BLINDOZER_GUI/BUTTON_STATISTICS.png")
+            BUTTON_STATISTIC.DoClick = function()
+                chat.PlaySound()
+                frame3()
+                frame2:Close()
+            end
         end
 
         local x = 42
@@ -274,20 +275,63 @@ if CLIENT then
 
         createLabel(frame5, 370, 248, keysl.massa, 100, 25, "TheDefaultSettings", Color(0, 0, 0))
         createLabel(frame5, 465, 295, keysl.colories, 100, 25, "TheDefaultSettings", Color(0, 0, 0))
-        createLabel(frame5, 385, 333, keysl.sostav, 350, 100, "TheDefaultSettings", Color(0, 0, 0))
+        createLabel(frame5, 284, 333, keysl.sostav, 460, 100, "TheDefaultSettings", Color(0, 0, 0))
+        if keysl.sostav1 then
+            createLabel(frame5, 284, 390, keysl.sostav1, 460, 100, "TheDefaultSettings", Color(0, 0, 0))
+        end
         createLabel(frame5, 840, 258, keysl.belki, 350, 25, "TheDefaultSettings", Color(0, 0, 0))
         createLabel(frame5, 840, 298, keysl.jiri, 350, 25, "TheDefaultSettings", Color(0, 0, 0))
         createLabel(frame5, 880, 340, keysl.yglevodi, 350, 25, "TheDefaultSettings", Color(0, 0, 0))
         createLabel(frame5, 410, 720, 'Общая стоимость: ' ..keysl.price.. '$', 350, 25, "TheDefaultSettings", Color(0, 0, 0))
         createLabel(frame5, 280, 200, keysl.name, 350, 25, "TheDefaultSettings", Color(120, 120, 120))
         createLabel(frame5, 280, 158, keysl.name, 350, 60, "TheDefaultSettings2", Color(0, 0, 0))
-
+        if keysl.button_dobavka then
+            local Conteiner = vgui.Create("DHorizontalScroller", frame5)
+                Conteiner:SetSize(913, 67)
+                Conteiner:SetPos(42, 498)
+                Conteiner:SetOverlap( -4 )
+            function Conteiner.btnLeft:Paint( w, h )
+                draw.RoundedBox( 0, 0, 0, w, h, Color( 200, 100, 0,0) )
+            end
+            function Conteiner.btnRight:Paint( w, h )
+                draw.RoundedBox( 0, 0, 0, w, h, Color( 0, 100, 200,0) )
+            end
+      
+            local posx = 42
+      
+            for k, v in pairs(blindozer_menu) do
+                if k == 1 then
+                    for k, v in SortedPairs(v.button_dobavka) do
+                        local DImageButton = vgui.Create("DImageButton",Conteiner)
+                        if v.condition == false then 
+                            DImageButton:SetImage(v.icon_false)
+                        else
+                            DImageButton:SetImage(v.icon_true)
+                        end
+                        DImageButton:SetSize(220, 55)
+                        DImageButton:SetPos(posx, 0)
+                        DImageButton.DoClick = function()
+                            if v.condition == false then 
+                                v.condition = true
+                            else
+                                v.condition = false
+                            end
+                        end
+                        Conteiner:AddPanel( DImageButton )
+      
+                        posx = posx + 232
+                    end
+                end
+            end
+        end 
     end
     net.Receive( "message_box", function( len, ply )
         local ent = net.ReadEntity()
         local r_table = net.ReadTable()
         local status = ent:InitUIelement()
         ent.MessageData = r_table
+        owner = r_table.OWNER
+        usersee = r_table.USER:SteamID()
         status:Show()
     end)
 end
