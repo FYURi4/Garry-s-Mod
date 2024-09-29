@@ -21,7 +21,7 @@ function ENT:Initialize()
 	if phys:IsValid() then 
 		phys:Wake(); 
 	end
-	self:SetHealth(500)
+	self:SetHealth(bler_cfg.bler_heth)
 end	
 
 function ENT:OnTakeDamage( dmginfo )
@@ -37,6 +37,7 @@ function ENT:Use(activator)
 	end 
 		
 	self.MessageData["USER"] = activator
+	self.MessageData["OWNER"] = self:GetCreator():SteamID()
 
 	net.Start( "message_box" )
 		net.WriteEntity(self)
