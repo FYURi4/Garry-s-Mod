@@ -43,6 +43,23 @@ if CLIENT then
         end
     end
 
+    local function createScroller(parent, x, y)
+        local scroller = vgui.Create("DHorizontalScroller", parent)
+        scroller:SetSize(913, 67)
+        scroller:SetPos(x, y)
+        scroller:SetOverlap(-4)
+
+        function scroller.btnLeft:Paint(w, h)
+            draw.RoundedBox(0, 0, 0, w, h, Color(200, 100, 0, 0))
+        end
+
+        function scroller.btnRight:Paint(w, h)
+            draw.RoundedBox(0, 0, 0, w, h, Color(0, 100, 200, 0))
+        end
+
+        return scroller
+    end
+    
     local function createButton(Type,parent, posX, posY, sizeX, sizeY, imagePath)
         local button = vgui.Create(Type, parent)
         button:SetPos(posX, posY)
